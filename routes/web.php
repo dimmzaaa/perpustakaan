@@ -114,6 +114,44 @@ Route::post('/review', function (Request $request) {
 
 })->middleware('auth');
 
+// EDIT REVIEW OLEH USER
+Route::post('/review/update/{id}', function (Request $request, $id) {
+    $review = \App\Models\Review::findOrFail($id);
+
+    // Hanya pemilik review yang boleh edit
+    if ($review->user_id !== auth()->id()) {
+        abort(403, 'Akses ditolak.');
+    }
+
+    $request->validate([
+        'rating' => 'required|numeric|min:1|max:5',
+        'review' => 'nullable|string|max:1000',
+    ]);
+
+    $review->update([
+        'rating' => $request->rating,
+        'review' => $request->review,
+    ]);
+
+    return back()->with('success', 'Ulasan berhasil diperbarui!');
+
+})->middleware('auth');
+
+// HAPUS REVIEW OLEH USER
+Route::post('/review/delete/{id}', function ($id) {
+    $review = \App\Models\Review::findOrFail($id);
+
+    // Hanya pemilik review yang boleh hapus
+    if ($review->user_id !== auth()->id()) {
+        abort(403, 'Akses ditolak.');
+    }
+
+    $review->delete();
+
+    return back()->with('success', 'Ulasan berhasil dihapus!');
+
+})->middleware('auth');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -180,7 +218,7 @@ Route::post('/admin/books', function (Request $request) {
     'publisher' => 'required',
     'year' => 'required',
     'stock' => 'required|integer|min:0',
-    'image' => 'image|mimes:jpg,jpeg,png|max:2048'
+    'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048'
 ]);
 
     $imagePath = null;
@@ -227,7 +265,7 @@ Route::post('/admin/books/update/{id}', function (Request $request, $id) {
         'publisher' => 'required',
         'year' => 'required',
         'stock' => 'nullable|integer|min:0',
-        'image' => 'image|mimes:jpg,jpeg,png|max:2048'
+        'image' => 'image|mimes:jpg,jpeg,png,webp|max:2048'
     ]);
 
     // update gambar kalau ada
@@ -559,6 +597,36 @@ Route::get('/profile/edit', function () {
 
 Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'index']);
 
+
+/*
+|--------------------------------------------------------------------------
+| LAPORAN (PRINT)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/admin/laporan/peminjaman', function () {
+    if (!auth()->user()->isStaff()) abort(403);
+    $loans = \App\Models\Loan::with('user', 'book')->latest()->get();
+    return view('admin.laporan.peminjaman', compact('loans'));
+})->middleware('auth');
+
+Route::get('/admin/laporan/buku', function () {
+    if (!auth()->user()->isStaff()) abort(403);
+    $books = \App\Models\Book::with('reviews')->latest()->get();
+    return view('admin.laporan.buku', compact('books'));
+})->middleware('auth');
+
+Route::get('/admin/laporan/users', function () {
+    if (!auth()->user()->isStaff()) abort(403);
+    $users = \App\Models\User::where('role', 'user')->orWhereNull('role')->latest()->get();
+    return view('admin.laporan.users', compact('users'));
+})->middleware('auth');
+
+Route::get('/admin/laporan/reviews', function () {
+    if (!auth()->user()->isStaff()) abort(403);
+    $reviews = \App\Models\Review::with('user', 'book')->latest()->get();
+    return view('admin.laporan.reviews', compact('reviews'));
+})->middleware('auth');
 
 require __DIR__.'/auth.php';
 

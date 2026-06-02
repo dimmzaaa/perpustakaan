@@ -289,13 +289,111 @@ body{font-family:"Poppins",sans-serif;background:#070d1a;color:#e2e8f0;margin:0;
           @endfor
         </div>
         <span class="text-xs font-bold" style="color:#facc15;">{{ number_format($review->rating,1) }}</span>
+
+        {{-- Tombol Edit & Hapus hanya untuk pemilik ulasan --}}
+        @auth
+          @if(auth()->id() === $review->user_id)
+          <div class="flex items-center gap-1 ml-2">
+            {{-- Tombol Edit --}}
+            <button onclick="document.getElementById('editModal{{ $review->id }}').style.display='flex'"
+              class="text-xs px-2 py-1 rounded-lg font-medium"
+              style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);">
+              Edit
+            </button>
+            {{-- Tombol Hapus --}}
+            <button onclick="document.getElementById('deleteModal{{ $review->id }}').style.display='flex'"
+              class="text-xs px-2 py-1 rounded-lg font-medium"
+              style="background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25);">
+              Hapus
+            </button>
+          </div>
+          @endif
+        @endauth
       </div>
     </div>
+
     @if($review->review)
     <p class="text-sm leading-relaxed" style="color:#94a3b8;">{{ $review->review }}</p>
     @else
     <p class="text-xs italic" style="color:#334155;">Tidak ada komentar</p>
     @endif
+
+    {{-- MODAL EDIT ULASAN --}}
+    @auth
+      @if(auth()->id() === $review->user_id)
+      <div id="editModal{{ $review->id }}" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,.7);">
+        <div class="card p-6 w-full max-w-md mx-4" style="border-radius:16px;">
+          <h3 class="font-bold text-white mb-4" style="font-size:16px;">Edit Ulasan</h3>
+          <form action="/review/update/{{ $review->id }}" method="POST">
+            @csrf
+            {{-- Rating --}}
+            <div class="mb-4">
+              <label class="text-sm mb-2 block" style="color:#94a3b8;">Rating</label>
+              <input type="hidden" name="rating" id="editRating{{ $review->id }}" value="{{ $review->rating }}">
+              <div class="flex gap-2">
+                @for($i=1;$i<=5;$i++)
+                <button type="button"
+                  onclick="setEditRating({{ $review->id }}, {{ $i }})"
+                  data-val="{{ $i }}"
+                  class="edit-star-{{ $review->id }} w-8 h-8 focus:outline-none"
+                  style="color:{{ $review->rating >= $i ? '#facc15' : '#475569' }};background:none;border:none;cursor:pointer;padding:0;">
+                  <svg fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </button>
+                @endfor
+              </div>
+            </div>
+            {{-- Teks ulasan --}}
+            <div class="mb-4">
+              <label class="text-sm mb-2 block" style="color:#94a3b8;">Ulasan</label>
+              <textarea name="review" rows="3" class="inp" style="resize:none;">{{ $review->review }}</textarea>
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="btn-pinjam" style="flex:1;">Simpan</button>
+              <button type="button"
+                onclick="document.getElementById('editModal{{ $review->id }}').style.display='none'"
+                class="text-sm px-4 py-2 rounded-xl font-medium"
+                style="background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.1);flex:1;">
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      @endif
+    @endauth
+
+    {{-- MODAL HAPUS ULASAN --}}
+    @auth
+      @if(auth()->id() === $review->user_id)
+      <div id="deleteModal{{ $review->id }}" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,.7);">
+        <div class="card p-6 w-full max-w-sm mx-4 text-center" style="border-radius:16px;">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style="background:rgba(239,68,68,.12);">
+            <svg class="w-7 h-7" style="color:#f87171;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </div>
+          <h3 class="font-bold text-white mb-2" style="font-size:16px;">Hapus Ulasan?</h3>
+          <p class="text-sm mb-6" style="color:#64748b;">Ulasan ini akan dihapus permanen dan tidak bisa dikembalikan.</p>
+          <div class="flex gap-3">
+            <button onclick="document.getElementById('deleteModal{{ $review->id }}').style.display='none'"
+              class="text-sm px-4 py-2 rounded-xl font-medium w-full"
+              style="background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.1);">
+              Batal
+            </button>
+            <form action="/review/delete/{{ $review->id }}" method="POST" class="w-full">
+              @csrf
+              <button type="submit" class="text-sm px-4 py-2 rounded-xl font-medium w-full"
+                style="background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3);">
+                Ya, Hapus
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      @endif
+    @endauth
   </div>
   @empty
   <div class="text-center py-14 card" style="border-radius:16px;">
@@ -362,6 +460,33 @@ if (reviewForm) {
     }
   });
 }
+
+// Edit review star rating
+function setEditRating(reviewId, val) {
+  document.getElementById('editRating' + reviewId).value = val;
+  document.querySelectorAll('.edit-star-' + reviewId).forEach(function(btn) {
+    btn.style.color = parseInt(btn.dataset.val) <= val ? '#facc15' : '#475569';
+  });
+}
+
+// Hover effect untuk edit stars
+document.querySelectorAll('[class^="edit-star-"]').forEach(function(btn) {
+  var classes = btn.className.match(/edit-star-(\d+)/);
+  if (!classes) return;
+  var reviewId = classes[1];
+  btn.addEventListener('mouseover', function() {
+    var val = parseInt(this.dataset.val);
+    document.querySelectorAll('.edit-star-' + reviewId).forEach(function(b) {
+      b.style.color = parseInt(b.dataset.val) <= val ? '#facc15' : '#475569';
+    });
+  });
+  btn.addEventListener('mouseout', function() {
+    var current = parseInt(document.getElementById('editRating' + reviewId).value);
+    document.querySelectorAll('.edit-star-' + reviewId).forEach(function(b) {
+      b.style.color = parseInt(b.dataset.val) <= current ? '#facc15' : '#475569';
+    });
+  });
+});
 </script>
 </body>
 </html>

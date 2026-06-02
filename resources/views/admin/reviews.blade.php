@@ -93,6 +93,14 @@ body{font-family:'Poppins',sans-serif;background:#060b16;color:#e2e8f0;margin:0;
     <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:#6366f1;">Manajemen Ulasan</p>
     <h1 class="text-3xl font-bold text-white">Kelola Ulasan</h1>
     <p class="text-sm mt-1" style="color:#475569;">Edit atau hapus ulasan dari pengguna</p>
+    <div class="mt-4">
+      <a href="/admin/laporan/reviews" target="_blank"
+        style="display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:600;background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);text-decoration:none;transition:.2s;"
+        onmouseover="this.style.background='rgba(99,102,241,.25)'" onmouseout="this.style.background='rgba(99,102,241,.15)'">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        Cetak Laporan Ulasan
+      </a>
+    </div>
   </div>
 </div>
 
