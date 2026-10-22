@@ -186,10 +186,69 @@ body{font-family:'Poppins',sans-serif;background:#060b16;color:#e2e8f0;margin:0;
         {{-- AKSI --}}
         <div class="space-y-1.5">
           @if($loan->status == 'dipinjam')
-            <form action="/kembalikan/{{ $loan->id }}" method="POST">
-              @csrf
-              <button type="submit" style="width:100%;padding:8px;border-radius:9px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;transition:.2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Ajukan Pengembalian</button>
-            </form>
+            {{-- Tombol buka pop-up pengembalian --}}
+            <button onclick="document.getElementById('modalKembali{{ $loan->id }}').style.display='flex'"
+              style="width:100%;padding:8px;border-radius:9px;font-size:12px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;transition:.2s;"
+              onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+              Ajukan Pengembalian
+            </button>
+
+            {{-- MODAL KONFIRMASI PENGEMBALIAN --}}
+            <div id="modalKembali{{ $loan->id }}" style="display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(0,0,0,.75);">
+              <div style="background:#0c1422;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:420px;margin:16px;overflow:hidden;">
+                <div style="height:3px;background:linear-gradient(90deg,#3b82f6,#6366f1);"></div>
+                <div style="padding:24px;">
+                  <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;">Ajukan Pengembalian</h3>
+                  <p style="font-size:12px;color:#64748b;margin-bottom:20px;">Pastikan data berikut sudah benar sebelum mengajukan</p>
+
+                  {{-- Info Buku --}}
+                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:16px;">
+                    @if($loan->book && $loan->book->image)
+                    <div style="display:flex;gap:12px;align-items:center;">
+                      <img src="{{ asset('storage/'.$loan->book->image) }}" style="width:50px;height:65px;object-fit:cover;border-radius:8px;flex-shrink:0;">
+                      <div>
+                    @else
+                    <div>
+                      <div>
+                    @endif
+                        <p style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">{{ $loan->book->title ?? '-' }}</p>
+                        <p style="font-size:11px;color:#64748b;">{{ $loan->book->author ?? '-' }}</p>
+                        <p style="font-size:11px;color:#64748b;">{{ $loan->book->publisher ?? '-' }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {{-- Detail Pinjam --}}
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+                    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px;">
+                      <p style="font-size:10px;color:#475569;margin-bottom:2px;">Tanggal Pinjam</p>
+                      <p style="font-size:13px;font-weight:600;color:#fff;">{{ \Carbon\Carbon::parse($loan->borrow_date)->format('d M Y') }}</p>
+                    </div>
+                    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:10px;">
+                      <p style="font-size:10px;color:#475569;margin-bottom:2px;">Batas Kembali</p>
+                      <p style="font-size:13px;font-weight:600;color:{{ \Carbon\Carbon::parse($loan->return_date)->isPast() ? '#f87171' : '#fff' }};">
+                        {{ \Carbon\Carbon::parse($loan->return_date)->format('d M Y') }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style="display:flex;gap:10px;">
+                    <button onclick="document.getElementById('modalKembali{{ $loan->id }}').style.display='none'"
+                      style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:500;font-family:'Poppins',sans-serif;cursor:pointer;background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.1);">
+                      Batal
+                    </button>
+                    <form action="/kembalikan/{{ $loan->id }}" method="POST" style="flex:1;">
+                      @csrf
+                      <button type="submit"
+                        style="width:100%;padding:10px;border-radius:10px;font-size:13px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff;border:none;">
+                        Ya, Ajukan
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <a href="/bukti/{{ $loan->id }}" style="display:block;text-align:center;padding:8px;border-radius:9px;font-size:12px;font-weight:500;text-decoration:none;background:rgba(255,255,255,.04);color:#64748b;border:1px solid rgba(255,255,255,.07);transition:.2s;" onmouseover="this.style.color='#e2e8f0';this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.color='#64748b';this.style.background='rgba(255,255,255,.04)'">Lihat Bukti Pinjam</a>
 
           @elseif($loan->status == 'menunggu_kembali')

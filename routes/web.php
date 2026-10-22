@@ -62,7 +62,7 @@ Route::post('/pinjam', function (Request $request) {
         return back()->with('error', 'Stok habis!');
     }
 
-    Loan::create([
+    $newLoan = Loan::create([
         'user_id' => auth()->id(),
         'book_id' => $request->book_id,
         'borrow_date' => $request->borrow_date,
@@ -70,8 +70,7 @@ Route::post('/pinjam', function (Request $request) {
         'status' => 'menunggu'
     ]);
 
-
-    return redirect('/')->with('success', 'Pengajuan berhasil!');
+    return redirect('/pinjam/' . $request->book_id . '?success=1&loan_id=' . $newLoan->id);
 
 })->middleware('auth');
 
