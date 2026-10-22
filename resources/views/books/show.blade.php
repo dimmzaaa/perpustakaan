@@ -488,6 +488,7 @@ document.querySelectorAll('[class^="edit-star-"]').forEach(function(btn) {
   });
 });
 </script>
+@include('components.chatbot')
 </body>
 </html>
 

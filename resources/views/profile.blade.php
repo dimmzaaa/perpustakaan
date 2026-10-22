@@ -210,6 +210,7 @@ const obs = new IntersectionObserver(entries => {
 },{threshold:0.05});
 document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
 </script>
+@include('components.chatbot')
 </body>
 </html>
 

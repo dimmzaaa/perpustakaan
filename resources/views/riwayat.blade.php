@@ -294,6 +294,7 @@ function updateCountdowns() {
 updateCountdowns();
 setInterval(updateCountdowns, 1000);
 </script>
+@include('components.chatbot')
 </body>
 </html>
 

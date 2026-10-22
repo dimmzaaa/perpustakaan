@@ -239,5 +239,6 @@ items.forEach(el => observer.observe(el));
 @endif
 @endif
 
+@include('components.chatbot')
 </body>
 </html>

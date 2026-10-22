@@ -763,6 +763,8 @@ function closeModal() {
 // Tutup modal dengan ESC
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
+
+@include('components.chatbot')
 </body>
 </html>
 
