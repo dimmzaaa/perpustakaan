@@ -628,6 +628,12 @@ Route::get('/admin/laporan/reviews', function () {
     return view('admin.laporan.reviews', compact('reviews'));
 })->middleware('auth');
 
+Route::get('/admin/laporan/petugas', function () {
+    if (!auth()->user()->isAdmin()) abort(403);
+    $petugas = \App\Models\User::where('role', 'petugas')->latest()->get();
+    return view('admin.laporan.petugas', compact('petugas'));
+})->middleware('auth');
+
 require __DIR__.'/auth.php';
 
 
