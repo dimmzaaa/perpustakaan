@@ -86,6 +86,63 @@ body{font-family:'Poppins',sans-serif;background:#060b16;color:#e2e8f0;margin:0;
   </div>
 </div>
 
+<!-- CHART STATISTIK -->
+<div class="px-6 mb-8 max-w-7xl mx-auto fade-in">
+  <div style="background:#0c1422;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:24px;">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="font-semibold text-white" style="font-size:15px;">Statistik Peminjaman</h3>
+        <p style="font-size:12px;color:#475569;">Data peminjaman per bulan tahun {{ now()->year }}</p>
+      </div>
+      <div class="flex items-center gap-4" style="font-size:12px;color:#64748b;">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6366f1;margin-right:4px;"></span>Peminjaman</span>
+      </div>
+    </div>
+    <canvas id="loanChart" height="80"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('loanChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+    datasets: [{
+      label: 'Jumlah Peminjaman',
+      data: @json($chartData->values()),
+      backgroundColor: 'rgba(99,102,241,.5)',
+      borderColor: '#6366f1',
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.parsed.y} peminjaman`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,.05)' },
+        ticks: { color: '#64748b', font: { size: 11 } }
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(255,255,255,.05)' },
+        ticks: { color: '#64748b', font: { size: 11 }, stepSize: 1 }
+      }
+    }
+  }
+});
+</script>
+
 <!-- FILTER + SEARCH -->
 @php
   $filterStatus    = request('status','');

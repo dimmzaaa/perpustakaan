@@ -77,22 +77,49 @@ body{font-family:'Poppins',sans-serif;background:#060b16;color:#e2e8f0;margin:0;
   </div>
 </div>
 
+<!-- FILTER STATUS -->
+@php
+  $filterStatus = request('status','');
+  $loansFiltered = $filterStatus ? $loans->where('status', $filterStatus) : $loans;
+@endphp
+<div class="px-6 mb-6 max-w-7xl mx-auto fade-in">
+  <div class="flex flex-wrap items-center gap-2">
+    @foreach([
+      [''                ,'Semua'        ,$loans->count()                              ,'#64748b','rgba(255,255,255,.06)'],
+      ['menunggu'        ,'Menunggu'     ,$loans->where('status','menunggu')->count()  ,'#facc15','rgba(234,179,8,.12)'],
+      ['dipinjam'        ,'Dipinjam'     ,$loans->where('status','dipinjam')->count()  ,'#60a5fa','rgba(59,130,246,.12)'],
+      ['menunggu_kembali','Minta Kembali',$loans->where('status','menunggu_kembali')->count(),'#c4b5fd','rgba(139,92,246,.12)'],
+      ['selesai'         ,'Selesai'      ,$loans->where('status','selesai')->count()   ,'#4ade80','rgba(34,197,94,.12)'],
+      ['ditolak'         ,'Ditolak'      ,$loans->where('status','ditolak')->count()   ,'#f87171','rgba(239,68,68,.12)'],
+    ] as [$val,$label,$count,$color,$bg])
+    <a href="/riwayat{{ $val ? '?status='.$val : '' }}"
+      style="padding:7px 14px;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:.2s;border:1px solid {{ $filterStatus==$val ? 'transparent' : 'rgba(255,255,255,.07)' }};background:{{ $filterStatus==$val ? $bg : 'transparent' }};color:{{ $filterStatus==$val ? $color : '#475569' }};"
+      onmouseover="this.style.background='{{ $bg }}';this.style.color='{{ $color }}'"
+      onmouseout="this.style.background='{{ $filterStatus==$val ? $bg : 'transparent' }}';this.style.color='{{ $filterStatus==$val ? $color : '#475569' }}'">
+      {{ $label }} @if($count > 0)<span style="opacity:.7;">({{ $count }})</span>@endif
+    </a>
+    @endforeach
+  </div>
+</div>
+
 <!-- CONTENT -->
 <div class="px-6 pb-20 max-w-7xl mx-auto">
 
-  @if($loans->isEmpty())
+  @if($loansFiltered->isEmpty())
   <div class="text-center py-20 fade-in">
     <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:rgba(99,102,241,.1);">
       <svg class="w-8 h-8" style="color:#334155;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11m0-11C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v11C4.168 16.477 5.754 16 7.5 16s3.332.477 4.5 1.253m0-11C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v11C19.832 16.477 18.246 16 16.5 16c-1.746 0-3.332.477-4.5 1.253"/></svg>
     </div>
-    <p class="font-semibold text-white mb-1">Belum ada riwayat peminjaman</p>
-    <p class="text-sm mb-5" style="color:#475569;">Mulai pinjam buku dari koleksi kami</p>
+    <p class="font-semibold text-white mb-1">{{ $filterStatus ? 'Tidak ada peminjaman dengan status ini' : 'Belum ada riwayat peminjaman' }}</p>
+    <p class="text-sm mb-5" style="color:#475569;">{{ $filterStatus ? 'Coba pilih filter lain' : 'Mulai pinjam buku dari koleksi kami' }}</p>
+    @if(!$filterStatus)
     <a href="/" class="btn-primary">Jelajahi Koleksi</a>
+    @endif
   </div>
   @else
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
 
-    @foreach($loans as $loan)
+    @foreach($loansFiltered as $loan)
     @php
       $accentColor = match($loan->status) {
         'menunggu'         => 'linear-gradient(90deg,#f59e0b,#facc15)',

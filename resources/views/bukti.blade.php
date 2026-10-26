@@ -296,6 +296,12 @@ body { font-family: 'Poppins', sans-serif; background: #0b1120; }
                 <p class="text-xs text-blue-700 mt-1">PerpusDigital — Sistem Perpustakaan Digital</p>
             </div>
 
+            {{-- QR CODE --}}
+            <div class="mt-4 pt-4 border-t border-white/10 flex flex-col items-center gap-2">
+              <canvas id="qrCanvas"></canvas>
+              <p class="text-xs" style="color:#334155;">Scan untuk verifikasi bukti</p>
+            </div>
+
         </div>
 
         {{-- TOMBOL AKSI --}}
@@ -319,5 +325,12 @@ body { font-family: 'Poppins', sans-serif; background: #0b1120; }
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+QRCode.toCanvas(document.getElementById('qrCanvas'),
+  '{{ url("/bukti/".$loan->id) }} | No.{{ str_pad($loan->id,6,"0",STR_PAD_LEFT) }} | {{ $loan->user->name }} | {{ $loan->book->title ?? "" }}',
+  { width: 100, margin: 1, color: { dark: '#ffffff', light: '#0c1422' } }
+);
+</script>
 </body>
 </html>

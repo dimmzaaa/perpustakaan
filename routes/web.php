@@ -170,12 +170,23 @@ Route::get('/admin/loans', function () {
     $dipinjam = Loan::where('status', 'dipinjam')->count();
     $selesai = Loan::where('status', 'selesai')->count();
 
+    // CHART DATA - peminjaman per bulan tahun ini
+    $loansPerMonth = Loan::selectRaw('MONTH(borrow_date) as month, COUNT(*) as total')
+        ->whereYear('borrow_date', now()->year)
+        ->groupBy('month')
+        ->orderBy('month')
+        ->pluck('total', 'month');
+
+    // isi 0 untuk bulan yang tidak ada data
+    $chartData = collect(range(1, 12))->map(fn($m) => $loansPerMonth->get($m, 0));
+
     return view('admin.loans', compact(
         'loans',
         'totalBooks',
         'totalUsers',
         'dipinjam',
-        'selesai'
+        'selesai',
+        'chartData'
     ));
 
 })->middleware('auth');
